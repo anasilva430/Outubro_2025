@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Desafio Financeiro - Quiz de Literacia</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        /* Estilos CSS Atraentes e Responsivos (Mantidos do passo anterior) */
+        :root {
+            --cor-principal: #007bff; /* Azul Vibrante */
+            --cor-secundaria: #28a745; /* Verde Sucesso */
+            --cor-alerta: #dc3545; /* Vermelho Risco */
+            --cor-fundo: #e0f7fa; /* Fundo Suave Azul Claro */
+            --cor-texto: #343a40;
+            --cor-destaque: #ffc107; /* Amarelo Destaque */
+            --sombra-caixa: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--sombra-caixa);
+            transition: all 0.5s ease-in-out;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--cor-principal);
+            margin-bottom: 20px;
+        }
+        
+        /* Estilos da Capa */
+        .capa h1 {
+            color: #4a148c; 
+        }
+        .capa h3 {
+            border-bottom: 2px solid var(--cor-destaque);
+            padding-bottom: 5px;
+            color: #333;
+        }
+
+        /* Estilos do Bloco do Jogo */
+        #tituloDecisao {
+            color: #6f42c1; 
+            border-bottom: 3px solid var(--cor-principal);
+            padding-bottom: 10px;
+        }
+        #descricaoDecisao {
+            background-color: #e9f0f6; 
+            padding: 18px;
+            border-radius: 8px;
+            border-left: 5px solid var(--cor-destaque); 
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.5;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-jogo {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: #f7f7f7;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-jogo p {
+            font-weight: bold;
+            color: var(--cor-texto);
+        }
+
+        .capa, .jogo, .resultado {
+            padding: 20px 0;
+            display: none;
+        }
+
+        .capa {
+            display: block;
+        }
+
+        /* Estilos do Formulário de Registo */
+        .registo input[type="text"], .registo input[type="email"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .membro-campos {
+            border: 2px solid #a0c4ff;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            background-color: #f0f8ff;
+            transition: all 0.3s;
+        }
+        .membro-campos:focus-within {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+        }
+        .membro-campos h4 {
+            margin-top: 0;
+            color: #155724; 
+            border-bottom: 1px dashed #c3e6cb;
+            padding-bottom: 5px;
+        }
+        .registo label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+
+        .btn-iniciar, .btn-decisao, .btn-reiniciar {
+            background-color: var(--cor-principal);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 30px;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn-iniciar:hover, .btn-decisao:hover, .btn-reiniciar:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Estilos das Decisões (Botões) */
+        .opcoes-decisao button {
+            background-color: #f8f9fa;
+            color: var(--cor-texto);
+            padding: 18px 25px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+
+        .opcoes-decisao button:hover {
+            background-color: #e9ecef;
+            border-color: var(--cor-secundaria); 
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Efeitos de Consequência/Feedback */
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+            font-size: 1.1em;
+            border: 3px solid transparent;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .positivo { 
+            background-color: #d4edda; 
+            color: var(--cor-secundaria); 
+            border-color: var(--cor-secundaria);
+        }
+        .negativo { 
+            background-color: #f8d7da; 
+            color: var(--cor-alerta); 
+            border-color: var(--cor-alerta);
+        }
+        .aviso { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border-color: var(--cor-destaque);
+        }
+
+        .saldo-jogo {
+            font-size: 1.5em;
+            color: var(--cor-alerta); 
+            padding-left: 5px;
+        }
+        .resultado .saldo-jogo {
+            color: var(--cor-secundaria); 
+            font-size: 1.8em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="capa" class="capa">
+        <h1>💰 O Desafio Financeiro: Risco & Recompensa 📈</h1>
+        <h2 style="color: #6a0dad;">Aprender a Gerir o Vosso Futuro Financeiro</h2>
+        <p style="text-align: center;">Bem-vindos, Jovens Investidores (10.º ao 12.º Anos)!</p>
+        
+        <h3>Cenário de Abertura</h3>
+        <p>Acabaram de receber **500€** (mesada e/ou rendimento de um trabalho de verão). O objetivo é gerir este dinheiro ao longo de 10 decisões críticas, de forma a maximizar o saldo final e a estabilidade, demonstrando uma excelente literacia financeira. As vossas decisões têm consequências imediatas e futuras!</p>
+
+        <form id="formRegisto" class="registo">
+            <h3>Registo do Grupo (2 a 3 Elementos)</h3>
+            <label for="nomeGrupo">Nome do Grupo/Equipa:</label>
+            <input type="text" id="nomeGrupo" name="nomeGrupo" required>
+            
+            <label for="emailDestino">Email do Grupo para Confirmação do Registo e Resultados:</label>
+            <input type="email" id="emailDestino" name="emailDestino" required>
+
+            <div class="membro-campos">
+                <h4>👤 Elemento 1</h4>
+                <label for="membro1Nome">Nome (Primeiro e Último):</label>
+                <input type="text" id="membro1Nome" name="membro1Nome" required>
+                <label for="membro1Turma">Turma:</label>
+                <input type="text" id="membro1Turma" name="membro1Turma" required>
+            </div>
+
+            <div class="membro-campos">
+                <h4>👥 Elemento 2</h4>
+                <label for="membro2Nome">Nome (Primeiro e Último):</label>
+                <input type="text" id="membro2Nome" name="membro2Nome" required>
+                <label for="membro2Turma">Turma:</label>
+                <input type="text" id="membro2Turma" name="membro2Turma" required>
+            </div>
+
+            <div class="membro-campos">
+                <h4>👨‍🎓 Elemento 3 (Opcional)</h4>
+                <label for="membro3Nome">Nome (Primeiro e Último):</label>
+                <input type="text" id="membro3Nome" name="membro3Nome">
+                <label for="membro3Turma">Turma:</label>
+                <input type="text" id="membro3Turma" name="membro3Turma">
+            </div>
+            
+            <p style="font-size: 0.8em; color: gray; margin-top: 20px;">*O código de registo (aleatório) será enviado para o email do grupo e o resultado final será enviado para o email do docente e do grupo.</p>
+            <button type="submit" class="btn-iniciar" id="btnGerarRegisto">Gerar Código e Iniciar Jogo</button>
+            <p id="msgEmail" style="text-align: center; margin-top: 15px; display: none;"></p>
+        </form>
+    </div>
+
+    <div id="jogo" class="jogo">
+        <div class="header-jogo">
+            <p>🎯 Rodada: <span id="rodadaAtual">0</span>/10</p>
+            <p>💶 Saldo Atual: <span id="saldoAtual" class="saldo-jogo">500.00€</span></p>
+            <p>⏱ Tempo de Jogo: <span id="tempoJogo">00:00</span></p>
+        </div>
+
+        <h2 id="tituloDecisao"></h2>
+        <p id="descricaoDecisao"></p>
+
+        <div id="opcoesDecisao" class="opcoes-decisao">
+            </div>
+
+        <div id="feedback" class="feedback">
+            </div>
+    </div>
+
+    <div id="resultado" class="resultado">
+        <h1 style="color: var(--cor-secundaria);">🏆 Fim do Desafio! 🏆</h1>
+        <p style="text-align: center;">Parabéns! Completaram as 10 decisões financeiras.</p>
+        
+        <h3>📊 O Vosso Desempenho:</h3>
+        <p style="font-size: 1.1em;"><strong>Nome do Grupo:</strong> <span id="resultadoNomeGrupo"></span></p>
+        <p style="font-weight: 600; margin-top: 15px;">Membros:</p>
+        <div id="resultadoMembros" style="background-color: #f7f7f7; padding: 10px; border-radius: 8px;">
+            </div>
+        <h3 style="margin-top: 20px;">Saldo Final: <span id="resultadoSaldoFinal" class="saldo-jogo"></span></h3>
+        <p><strong>Tempo Total de Jogo:</strong> <span id="resultadoTempo"></span></p>
+        
+        <p style="margin-top: 25px; color: #6c757d;">A pontuação e o tempo total de jogo serão avaliados para a classificação final. O resultado foi enviado para o seu email (docente) e para o email do grupo.</p>
+        
+        <button class="btn-reiniciar" onclick="location.reload()">Reiniciar Jogo</button>
+    </div>
+
+</div>
+
+<script>
+    // Configurações do EmailJS 
+    const EMAILJS_SERVICE_ID = 'service_wi13tin'; 
+    const EMAILJS_TEMPLATE_REGISTO_ID = 'template_3mv5huj';
+    const EMAILJS_TEMPLATE_RESULTADO_ID = 'template_dk2aboo';
+    const EMAILJS_PUBLIC_KEY = 'd9d86G7bDE1WQ8eDy'; 
+
+    // <<<<<<<<<<<<<<< ALTERAÇÃO CRÍTICA PARA GARANTIR O CONTROLO DOS RESULTADOS >>>>>>>>>>>>>>>>
+    // **ATENÇÃO:** SUBSTITUA ESTE ENDEREÇO PELO SEU EMAIL DE DOCENTE REAL!
+    const EMAIL_DOCENTE_FIXO = 'ana.silva.430@aemlaranjeira.pt'; 
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // Tempo de espera após a decisão (em milissegundos)
+    const TEMPO_FEEDBACK_MS = 7000; // 7 segundos 
+
+    // Inicialização do EmailJS
+    (function() {
+        emailjs.init({
+            publicKey: EMAILJS_PUBLIC_KEY,
+        });
+    })();
+
+    // Variáveis do Jogo
+    let rodada = 0;
+    let saldo = 500.00; 
+    let penalizacaoRisco = 0; 
+    let pontuacaoTotal = 0; // <<<<< NOVO: Adicionado para acumular a pontuação total
+    let tempoInicio;
+    let timerInterval;
+    let codigoRegisto = '';
+    let nomeGrupo = '';
+    let emailDestino = ''; // Email do Grupo
+    let membrosGrupoHTML = ''; 
+
+
+
+    // Estrutura das Decisões (Mantida para consistência e correção do NaN)
+    const decisoes = [
+        { 
+            id: 1, 
+            titulo: "Orçamento Pessoal: Necessário vs. Supérfluo",
+            pergunta: "Para começar o mês, precisam de um novo par de sapatilhas (necessário: as velhas estão rotas) e um *gadget* tecnológico (supérfluo). O vosso saldo é de 500€.",
+            opcoes: [
+                { texto: "Comprar apenas as sapatilhas (80€).", custo: 80, pontuacao: 3, feedback: "✅ Ótima gestão: Priorizaram o necessário e mantiveram o controlo do orçamento. Saldo Forte.", consequencia: null },
+                { texto: "Comprar as sapatilhas (80€) e o *gadget* a crédito (200€) com juros de 10%.", custo: 80, pontuacao: -2, feedback: "❌ Má gestão e assunção de crédito desnecessário. O *gadget* não era essencial. O custo futuro aumentou.", consequencia: (s) => s - (200 * 1.10), penalizacao: 1 }, 
+                { texto: "Não comprar nada e guardar tudo.", custo: 0, pontuacao: 1, feedback: "⚠️ Bom, mas desnecessariamente restritivo. Falharam em suprir uma necessidade real. Saldo igual.", consequencia: null }
+            ]
+        },
+        { 
+            id: 2, 
+            titulo: "Rendimento Extra e Poupança",
+            pergunta: "Conseguiram um pequeno trabalho e ganharam 150€. Têm um objetivo de poupança de 300€ para uma viagem a médio prazo.",
+            opcoes: [
+                { texto: "Depositar os 150€ numa Conta Poupança com juro de 2% (taxa anual).", custo: -150, pontuacao: 3, feedback: "✅ Decisão inteligente. Começaram a poupar para o objetivo, e o dinheiro está a render.", consequencia: (s) => s + 150 * 0.02, penalizacao: null }, 
+                { texto: "Usar os 150€ para um jantar de grupo imediato.", custo: 150, pontuacao: -1, feedback: "❌ Mau: Prejuízo na poupança a médio prazo. Priorizaram o prazer imediato (supérfluo).", consequencia: null, penalizacao: 1 }, 
+                { texto: "Investir os 150€ em Criptomoedas de alto risco (promessa de 50% de lucro).", custo: 150, pontuacao: 0, feedback: "⚠️ Arriscado: Embora a intenção seja boa, alto risco não é adequado para objetivos de médio prazo. Se for penalizado por risco alto: 50% de probabilidade de perder tudo (50%) ou ganhar (50%).", consequencia: (s) => { return Math.random() < 0.5 ? s - 150 : s + 150 * 0.5; }, penalizacao: 2 }
+            ]
+        },
+        { 
+            id: 3, 
+            titulo: "Crédito e Responsabilidade (Influência da Decisão 1)",
+            pergunta: "Receberam uma proposta de crédito para comprar uma scooter (meio de transporte) no valor de 1000€. As vossas despesas fixas atuais e o vosso *histórico* de crédito são avaliados pelo banco.",
+            opcoes: [
+                { texto: "Recusar a proposta. Não querem um compromisso de longo prazo sem necessidade imediata.", custo: 0, pontuacao: 3, feedback: "✅ Decisão prudente. Evitaram um compromisso de longo prazo e juros, preservando a capacidade financeira. (+3 pontos).", consequencia: null, penalizacao: null },
+                { texto: "Aceitar a proposta. Assumir a dívida de 1000€ com prestação mensal de 50€ (+10€ em juros).", custo: 0, pontuacao: -3, feedback: "❌ Risco alto. O recurso ao crédito é uma responsabilidade. O banco aumentou o risco devido à vossa má gestão inicial (Decisão 1, se aplicável).", consequencia: (s) => s - 60, penalizacao: 3 } 
+            ]
+        },
+        { 
+            id: 4, 
+            titulo: "Fraude Financeira (Phishing)",
+            pergunta: "Recebem um email a dizer que a vossa conta bancária foi bloqueada e a pedir para clicarem num link para a reativação, introduzindo o NIF e a palavra-chave.",
+            opcoes: [
+                { texto: "Clicar no link e introduzir os dados (estão com pressa!).", custo: 0, pontuacao: -5, feedback: "🚨 GRAVE! Caíram num esquema de *Phishing*! Perda de dados e acesso à conta. Perdem 10% do saldo total.", consequencia: (s) => s * 0.9, penalizacao: 5 },
+                { texto: "Apagar o email e ligar para o banco para confirmar se há algum problema.", custo: 0, pontuacao: 4, feedback: "✅ Excelente: Não partilharam dados. Conhecem as formas de proteção contra fraude financeira.", consequencia: null, penalizacao: null }
+            ]
+        },
+        { 
+            id: 5, 
+            titulo: "Ética Financeira e Pagamentos",
+            pergunta: "Compraram algo online. Na descrição diz 'Cartão de Débito: Pagamento Imediato' ou 'Cartão de Crédito: Pagamento a 30 dias'. Qual escolhem para uma compra de 50€, sabendo que têm saldo na conta?",
+            opcoes: [
+                { texto: "Usar o Cartão de Débito.", custo: 50, pontuacao: 2, feedback: "✅ Correto: Usaram fundos existentes (débito) para uma compra, praticando a ética de não endividamento desnecessário.", consequencia: null, penalizacao: null },
+                { texto: "Usar o Cartão de Crédito.", custo: 0, pontuacao: 0, feedback: "⚠️ Aceitável, mas menos ético se for para adiar o pagamento sem necessidade. Cria o hábito de viver 'a crédito'.", consequencia: null, penalizacao: 1 }
+            ]
+        },
+        { 
+            id: 6, 
+            titulo: "Planeamento a Longo Prazo e Inflação",
+            pergunta: "O vosso grupo pensa em comprar um carro elétrico daqui a 5 anos (custo: 20.000€). Qual é a melhor forma de investir o dinheiro a longo prazo?",
+            opcoes: [
+                { texto: "Deixar o dinheiro numa Conta de Depósito à Ordem (juro 0,05%).", custo: 0, pontuacao: -1, feedback: "❌ Mau: O dinheiro perde valor devido à inflação. Falharam em aplicar a poupança corretamente para o longo prazo.", consequencia: null, penalizacao: 1 },
+                { texto: "Investir num Fundo de Investimento de Baixo Risco (Rentabilidade esperada de 4%).", custo: 0, pontuacao: 4, feedback: "✅ Excelente: Investimento que acompanha ou supera a inflação, alinhado com um objetivo de longo prazo.", consequencia: (s) => s * 1.04, penalizacao: null }, 
+                { texto: "Guardar o dinheiro num mealheiro em casa.", custo: 0, pontuacao: -2, feedback: "❌ Péssimo: Risco de roubo e perda total por inflação. Não compreenderam o funcionamento da poupança/investimento.", consequencia: null, penalizacao: 2 }
+            ]
+        },
+        { 
+            id: 7, 
+            titulo: "O Sistema Financeiro (Bancos e Reguladores)",
+            pergunta: "O vosso banco está a ser alvo de notícias negativas. Qual é a principal função de entidades como o Banco de Portugal e o Banco Central Europeu (BCE) que vos tranquiliza?",
+            opcoes: [
+                { texto: "Garantir a estabilidade do sistema financeiro e supervisionar os bancos.", custo: 0, pontuacao: 3, feedback: "✅ Correto: Compreenderam o papel de regulação e supervisão, que protege os depositantes e o sistema.", consequencia: null, penalizacao: null },
+                { texto: "Aconselhar os clientes sobre as melhores ações para investir.", custo: 0, pontuacao: 0, feedback: "⚠️ Errado: Não é a função primária do banco central/regulador. Isso é papel de consultores.", consequencia: null, penalizacao: null }
+            ]
+        },
+        { 
+            id: 8, 
+            titulo: "Avaliação de Risco e Incerteza",
+            pergunta: "Uma nova oportunidade de investimento surge: investir 100€ num projeto de um amigo. Riscos: 80% de perder tudo, 20% de ganhar 500%.",
+            opcoes: [
+                { texto: "Investir os 100€, pois o potencial de ganho é muito alto.", custo: 100, pontuacao: -2, feedback: "❌ Risco desproporcional. Falharam em avaliar corretamente o risco vs. recompensa. Perdem os 100€.", consequencia: null, penalizacao: 2 },
+                { texto: "Não investir. Não é um risco adequado para o vosso perfil financeiro atual.", custo: 0, pontuacao: 3, feedback: "✅ Decisão sensata: Reconheceram o alto risco e a incerteza, protegendo o capital.", consequencia: null, penalizacao: null }
+            ]
+        },
+        { 
+            id: 9, 
+            titulo: "Direitos e Deveres do Consumidor Financeiro",
+            pergunta: "O vosso banco aumentou as comissões sem aviso prévio. Qual é o vosso direito e dever?",
+            opcoes: [
+                { texto: "Dever: Aceitar e pagar. Não há nada a fazer.", custo: 0, pontuacao: -1, feedback: "❌ Incorreto: Têm direitos, como o de serem informados e de reclamar.", consequencia: null, penalizacao: null },
+                { texto: "Direito: Apresentar reclamação formal no livro de reclamações e no Banco de Portugal, se necessário.", custo: 0, pontuacao: 3, feedback: "✅ Correto: Conhecem os vossos direitos e a via de recurso (reclamar é um direito e dever cívico).", consequencia: null, penalizacao: null }
+            ]
+        },
+        { 
+            id: 10, 
+            titulo: "Balanço Final: Capacidade Financeira (Consequência da Decisão 1, 2, 3)",
+            pergunta: "O vosso grupo precisa de 300€ para um curso de formação. Avaliem a vossa **capacidade financeira** com base no vosso *histórico* de dívidas e poupanças (influência das rodadas anteriores).",
+            opcoes: [
+                { texto: "Pedir um empréstimo. (O custo de juros é influenciado pelas penalizações de risco e crédito acumuladas).", custo: 0, pontuacao: 0, feedback: "⚠️ Depende: O empréstimo foi aceite, mas o custo de juros é de 10% (normal) + 2% por cada ponto de penalização acumulada.", consequencia: (s) => s - 300 - (300 * (0.10 + penalizacaoRisco * 0.02)), penalizacao: 0 },
+                { texto: "Usar a poupança acumulada no saldo atual (Se o saldo for superior a 300€).", custo: 300, pontuacao: 4, feedback: "✅ Ótimo: Se o saldo for suficiente, usaram a poupança para suprir a necessidade sem recorrer a crédito. (+4 pontos).", consequencia: null, penalizacao: 0 }
+            ]
+        }
+    ];
+
+    // Funções do Jogo
+    
+    function gerarCodigo() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    // A função de registo envia o código APENAS para o email do grupo (por isso não mudamos o template aqui)
+    document.getElementById('formRegisto').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        nomeGrupo = document.getElementById('nomeGrupo').value;
+        emailDestino = document.getElementById('emailDestino').value;
+        codigoRegisto = gerarCodigo();
+
+        // ... [Lógica de recolha de membros mantida] ...
+        let membros = [];
+        for (let i = 1; i <= 3; i++) {
+            const nomeEl = document.getElementById(`membro${i}Nome`);
+            const turmaEl = document.getElementById(`membro${i}Turma`);
+            
+            if (nomeEl.value && nomeEl.value.trim() !== '') {
+                membros.push({
+                    nome: nomeEl.value.trim(),
+                    turma: turmaEl.value.trim() || 'N/A' 
+                });
+            }
+        }
+        
+        if (membros.length < 2) {
+            alert("Por favor, preencha os dados de pelo menos 2 elementos do grupo.");
+            return;
+        }
+
+        membrosGrupoHTML = membros.map((m, index) => 
+            `<li><strong>Elemento ${index + 1}:</strong> ${m.nome} (${m.turma})</li>`
+        ).join('');
+        
+        const membrosGrupoEmail = membros.map((m, index) => 
+            `Elemento ${index + 1}: ${m.nome} (Turma: ${m.turma})`
+        ).join('\n'); 
+
+        const msgEmailEl = document.getElementById('msgEmail');
+        msgEmailEl.style.display = 'block';
+        msgEmailEl.textContent = 'A enviar código...';
+
+        const templateParams = {
+            nomeGrupo: nomeGrupo,
+            codigoRegisto: codigoRegisto,
+            // Envia o código de registo para o email do grupo
+            emailDestino: emailDestino, 
+            membrosGrupo: membrosGrupoEmail
+        };
+
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_REGISTO_ID, templateParams)
+            .then(function(response) {
+                msgEmailEl.style.backgroundColor = 'var(--cor-secundaria)';
+                msgEmailEl.style.color = 'white';
+                msgEmailEl.textContent = `Código '${codigoRegisto}' enviado com sucesso! O jogo irá começar...`;
+                iniciarJogo(membros);
+            }, function(error) {
+                msgEmailEl.style.backgroundColor = 'var(--cor-alerta)';
+                msgEmailEl.style.color = 'white';
+                msgEmailEl.textContent = `Erro ao enviar o código: ${error.text}. Por favor, anote o código: ${codigoRegisto}. O jogo irá começar...`;
+                iniciarJogo(membros);
+            });
+    });
+
+    function iniciarJogo(membros) {
+        document.getElementById('capa').style.display = 'none';
+        document.getElementById('jogo').style.display = 'block';
+        rodada = 0;
+        saldo = 500.00; 
+        penalizacaoRisco = 0;
+        pontuacaoTotal = 0; // Reiniciar pontuação total no início do jogo
+        
+        tempoInicio = Date.now();
+        timerInterval = setInterval(atualizarTempo, 1000);
+        
+        proximaDecisao();
+    }
+
+    function atualizarTempo() {
+        const tempoDecorrido = Date.now() - tempoInicio;
+        const segundos = Math.floor(tempoDecorrido / 1000) % 60;
+        const minutos = Math.floor(tempoDecorrido / 1000 / 60);
+        
+        const tempoFormatado = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+        document.getElementById('tempoJogo').textContent = tempoFormatado;
+    }
+
+    function proximaDecisao() {
+        if (rodada >= decisoes.length) {
+            terminarJogo();
+            return;
+        }
+
+        const decisaoAtual = decisoes[rodada];
+        
+        document.getElementById('rodadaAtual').textContent = rodada + 1;
+        document.getElementById('saldoAtual').textContent = saldo.toFixed(2) + '€';
+        document.getElementById('tituloDecisao').textContent = `Decisão ${rodada + 1}: ${decisaoAtual.titulo}`;
+        document.getElementById('descricaoDecisao').textContent = decisaoAtual.pergunta;
+
+        const opcoesDiv = document.getElementById('opcoesDecisao');
+        opcoesDiv.innerHTML = '';
+        document.getElementById('feedback').style.display = 'none';
+
+        decisaoAtual.opcoes.forEach((opcao, index) => {
+            const btn = document.createElement('button');
+            btn.innerHTML = `<span>➡️</span> Opção ${index + 1}: ${opcao.texto}`; 
+            btn.onclick = () => tomarDecisao(index); 
+            opcoesDiv.appendChild(btn);
+        });
+    }
+
+    function tomarDecisao(indiceOpcao) {
+        const decisaoAtual = decisoes[rodada];
+        const opcaoEscolhida = decisaoAtual.opcoes[indiceOpcao];
+     
+        let pontuacaoMudanca = opcaoEscolhida.pontuacao;
+      
+        let novoSaldo = parseFloat(saldo); 
+        
+        if (isNaN(novoSaldo)) {
+            console.error("Erro: Saldo inicial não é um número. Usando valor de fallback.");
+            novoSaldo = 500.00; 
+        }
+
+        let feedbackHTML = `<p>${opcaoEscolhida.feedback}</p>`;
+
+        // 2. Aplicação do custo (Subtrai se positivo, Soma se negativo)
+        if (opcaoEscolhida.custo !== null && typeof opcaoEscolhida.custo === 'number') {
+             if (opcaoEscolhida.custo > 0) {
+                 novoSaldo = novoSaldo - opcaoEscolhida.custo;
+             } else if (opcaoEscolhida.custo < 0) {
+                 novoSaldo = novoSaldo + Math.abs(opcaoEscolhida.custo);
+             }
+        }
+
+        // 3. Aplicação da consequência (juros/risco/lucro)
+        if (typeof opcaoEscolhida.consequencia === 'function') {
+            const saldoAposConsequencia = opcaoEscolhida.consequencia(novoSaldo);
+            novoSaldo = isNaN(saldoAposConsequencia) ? novoSaldo : saldoAposConsequencia;
+        }
+      
+
+        // 4. Acumulação da Pontuação e Risco
+        pontuacaoTotal += pontuacaoMudanca; 
+
+        if (opcaoEscolhida.penalizacao !== null) {
+            // <<<<<< CORREÇÃO CRÍTICA AQUI: GARANTIR QUE É UM NÚMERO ANTES DE SOMAR
+            const penalizacaoNumerica = parseFloat(opcaoEscolhida.penalizacao);
+            
+            if (!isNaN(penalizacaoNumerica)) {
+                penalizacaoRisco += penalizacaoNumerica; 
+                feedbackHTML += `<p><strong>⚠️ Risco Acumulado:</strong> Acrescentaram ${penalizacaoNumerica} pontos de Risco/Crédito para decisões futuras. Total: ${penalizacaoRisco}.</p>`;
+            } else {
+                 console.warn("Valor de penalização não é numérico e foi ignorado.");
+            }
+            // >>>>>> CORREÇÃO
+        }
+
+
+
+        // 5. Atualização e Feedback
+        saldo = novoSaldo;
+        rodada++;
+        
+        const feedbackEl = document.getElementById('feedback');
+        
+        feedbackHTML += pontuacaoMudanca !== 0 ? `<p><strong>📊 Pontuação:</strong> ${pontuacaoMudanca > 0 ? '+' : ''}${pontuacaoMudanca} pontos de Literacia. (Total: ${pontuacaoTotal})</p>` : '';
+        feedbackHTML += `<p>O seu Saldo após esta decisão é de: <strong class="saldo-jogo" style="color: ${saldo >= 500 ? 'var(--cor-secundaria)' : 'var(--cor-alerta)'}">${saldo.toFixed(2)}€</strong></p>`;
+
+        feedbackEl.innerHTML = feedbackHTML;
+
+        if (pontuacaoMudanca > 0) {
+            feedbackEl.className = 'feedback positivo';
+        } else if (pontuacaoMudanca < 0) {
+            feedbackEl.className = 'feedback negativo';
+        } else {
+            feedbackEl.className = 'feedback aviso';
+        }
+        
+        document.getElementById('saldoAtual').textContent = saldo.toFixed(2) + '€';
+        feedbackEl.style.display = 'block';
+
+        document.getElementById('opcoesDecisao').innerHTML = `<p style="text-align: center; color: var(--cor-principal); font-weight: bold;">Próxima decisão em ${TEMPO_FEEDBACK_MS / 1000} segundos...</p>`;
+
+        setTimeout(() => {
+            proximaDecisao();
+        }, TEMPO_FEEDBACK_MS);
+    }
+
+
+    function terminarJogo() {
+        clearInterval(timerInterval);
+        const tempoFinalFormatado = document.getElementById('tempoJogo').textContent;
+
+        document.getElementById('jogo').style.display = 'none';
+        document.getElementById('resultado').style.display = 'block';
+
+        // Preencher os resultados
+        document.getElementById('resultadoNomeGrupo').textContent = nomeGrupo;
+        document.getElementById('resultadoMembros').innerHTML = `<ul style="list-style-type: none; padding-left: 0;">${membrosGrupoHTML}</ul>`; 
+        
+        const saldoFinalArredondado = parseFloat(saldo).toFixed(2);
+        document.getElementById('resultadoSaldoFinal').textContent = saldoFinalArredondado + '€';
+        document.getElementById('resultadoTempo').textContent = tempoFinalFormatado;
+        
+        // Envio do resultado por EmailJS (AGORA CORRIGIDO)
+        enviarResultadoFinal(saldoFinalArredondado, tempoFinalFormatado);
+    }
+
+    // FUNÇÃO DE ENVIO CORRIGIDA
+    function enviarResultadoFinal(saldoFinal, tempoJogo) {
+        
+        const membrosGrupoEmail = membrosGrupoHTML.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+
+        // Parâmetros para enviar o email
+        const templateParams = {
+            nomeGrupo: nomeGrupo,
+            codigoRegisto: codigoRegisto,
+            // ATENÇÃO: emailDocente e emailGrupo foram adicionados como variáveis de template
+            emailDocente: EMAIL_DOCENTE_FIXO, 
+            emailGrupo: emailDestino, 
+            membrosGrupo: membrosGrupoEmail, 
+            saldoFinal: saldoFinal,
+            tempoJogo: tempoJogo,
+            riscoAcumulado: penalizacaoRisco, // <<< NOVO: Dados de avaliação
+            pontuacaoFinal: pontuacaoTotal   // <<< NOVO: Dados de avaliação
+        };
+
+        // Envia o resultado. Deve configurar o seu Template (EMAILJS_TEMPLATE_RESULTADO_ID) 
+        // para incluir {{emailDocente}} no campo 'To' e {{emailGrupo}} no campo 'CC' (Cópia).
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_RESULTADO_ID, templateParams)
+            .then(function(response) {
+                console.log('Resultado enviado com sucesso!', response.status, response.text);
+            }, function(error) {
+                console.log('Falha no envio do resultado...', error);
+            });
+    }
+
+</script>
+
+</body>
+</html>
